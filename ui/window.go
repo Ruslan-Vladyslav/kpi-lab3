@@ -43,7 +43,9 @@ func (pw *Visualizer) Update(t screen.Texture) {
 
 func (pw *Visualizer) run(s screen.Screen) {
 	w, err := s.NewWindow(&screen.NewWindowOptions{
-		Title: pw.Title,
+		Title:  pw.Title,
+		Width:  800,
+		Height: 800,
 	})
 	if err != nil {
 		log.Fatal("Failed to initialize the app window:", err)
@@ -94,11 +96,11 @@ func detectTerminate(e any) bool {
 	switch e := e.(type) {
 	case lifecycle.Event:
 		if e.To == lifecycle.StageDead {
-			return true // Window destroy initiated.
+			return true
 		}
 	case key.Event:
 		if e.Code == key.CodeEscape {
-			return true // Esc pressed.
+			return true
 		}
 	}
 	return false
@@ -107,7 +109,7 @@ func detectTerminate(e any) bool {
 func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
 	switch e := e.(type) {
 
-	case size.Event: // Оновлення даних про розмір вікна.
+	case size.Event:
 		pw.sz = e
 
 	case error:
@@ -115,28 +117,65 @@ func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
 
 	case mouse.Event:
 		if t == nil {
-			// TODO: Реалізувати реакцію на натискання кнопки миші.
+			if e.Button == mouse.ButtonRight {
+				log.Printf("Clicked: %v, %v", e.X, e.Y)
+				x := int(e.X)
+				y := int(e.Y)
+				pw.drawDefaultUI(&x, &y)
+			}
 		}
 
 	case paint.Event:
-		// Малювання контенту вікна.
 		if t == nil {
-			pw.drawDefaultUI()
+			pw.drawDefaultUI(nil, nil)
 		} else {
-			// Використання текстури отриманої через виклик Update.
 			pw.w.Scale(pw.sz.Bounds(), t, t.Bounds(), draw.Src, nil)
 		}
 		pw.w.Publish()
 	}
 }
 
-func (pw *Visualizer) drawDefaultUI() {
-	pw.w.Fill(pw.sz.Bounds(), color.Black, draw.Src) // Фон.
+func (pw *Visualizer) drawDefaultUI(x, y *int) {
+	pw.w.Fill(pw.sz.Bounds(), color.RGBA{0, 255, 0, 255}, draw.Src) 
 
-	// TODO: Змінити колір фону та додати відображення фігури у вашому варіанті.
+	if x == nil {
+		defaultX := pw.sz.WidthPx / 2
+		x = &defaultX
+	}
+	if y == nil {
+		defaultY := pw.sz.HeightPx / 2
+		y = &defaultY
+	}
 
-	// Малювання білої рамки.
+	DrawShape(pw.w.Fill, *x, *y, 1)
+
 	for _, br := range imageutil.Border(pw.sz.Bounds(), 10) {
 		pw.w.Fill(br, color.White, draw.Src)
 	}
 }
+
+func DrawShape(Fill func(dr image.Rectangle, src color.Color, op draw.Op), x, y int, scale float64) {
+	size := int(200 * scale)      
+	thickness := int(40 * scale)   
+
+	shapeColor := color.RGBA{R: 255, G: 230, B: 69, A: 255}
+
+	vertical := image.Rect(
+		x-thickness/2,
+		y-size/2,
+		x+thickness/2,
+		y+size/2,
+	)
+
+	horizontal := image.Rect(
+		x-thickness/2-size/2,
+		y-thickness/2,
+		x-thickness/2,
+		y+thickness/2,
+	)
+
+	Fill(vertical, shapeColor, draw.Src)
+	Fill(horizontal, shapeColor, draw.Src)
+}
+
+
