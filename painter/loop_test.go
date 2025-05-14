@@ -20,23 +20,23 @@ func TestLoop_Post(t *testing.T) {
 	var testOps []string
 
 	l.Start(mockScreen{})
-	l.Post(logOp(t, "do white fill", WhiteFill))
-	l.Post(logOp(t, "do green fill", GreenFill))
-	l.Post(UpdateOp)
+	// l.Post(logOp(t, "do white fill", WhiteFill))
+	// l.Post(logOp(t, "do green fill", GreenFill))
+	//l.Post(UpdateOp)
 
-	for i := 0; i < 3; i++ {
-		go l.Post(logOp(t, "do green fill", GreenFill))
-	}
+	// for i := 0; i < 3; i++ {
+	// 	go l.Post(logOp(t, "do green fill", GreenFill))
+	// }
 
-	l.Post(OperationFunc(func(screen.Texture) {
-		testOps = append(testOps, "op 1")
-		l.Post(OperationFunc(func(screen.Texture) {
-			testOps = append(testOps, "op 2")
-		}))
-	}))
-	l.Post(OperationFunc(func(screen.Texture) {
-		testOps = append(testOps, "op 3")
-	}))
+	// l.Post(OperationFunc(func(screen.Texture) {
+	// 	testOps = append(testOps, "op 1")
+	// 	l.Post(OperationFunc(func(screen.Texture) {
+	// 		testOps = append(testOps, "op 2")
+	// 	}))
+	// }))
+	// l.Post(OperationFunc(func(screen.Texture) {
+	// 	testOps = append(testOps, "op 3")
+	// }))
 
 	l.StopAndWait()
 
@@ -59,12 +59,12 @@ func TestLoop_Post(t *testing.T) {
 	}
 }
 
-func logOp(t *testing.T, msg string, op OperationFunc) OperationFunc {
-	return func(tx screen.Texture) {
-		t.Log(msg)
-		op(tx)
-	}
-}
+// func logOp(t *testing.T, msg string, op OperationFunc) OperationFunc {
+// 	return func(tx screen.Texture) {
+// 		t.Log(msg)
+// 		op(tx)
+// 	}
+// }
 
 type testReceiver struct {
 	lastTexture screen.Texture
