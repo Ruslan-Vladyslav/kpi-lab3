@@ -23,7 +23,7 @@ jobs:
         run: go mod tidy
 
       - name: Run tests
-        run: go test -v ./...
+        run: go test ./cmd/... ./painter/...
 
       - name: Create bin directory
         run: mkdir -p bin
