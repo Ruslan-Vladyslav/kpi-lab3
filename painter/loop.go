@@ -19,8 +19,7 @@ type Loop struct {
 	next screen.Texture // текстура, яка зараз формується
 	prev screen.Texture // текстура, яка була відправленя останнього разу у Receiver
 
-	State *State
-	mq    messageQueue
+	mq messageQueue
 
 	stopped chan struct{}
 	stopReq bool
@@ -37,7 +36,7 @@ func (l *Loop) Start(s screen.Screen) {
 	go func() {
 		for !l.stopReq || !l.mq.empty() {
 			op := l.mq.pull()
-			update := op.Do(l.next, l.State)
+			update := op.Do(l.next)
 			if update {
 				l.Receiver.Update(l.next)
 				l.next, l.prev = l.prev, l.next
@@ -49,11 +48,13 @@ func (l *Loop) Start(s screen.Screen) {
 }
 
 func (l *Loop) Post(op Operation) {
-	l.mq.push(op)
+	if op != nil {
+		l.mq.push(op)
+	}
 }
 
 func (l *Loop) StopAndWait() {
-	l.Post(OperationFunc(func(screen.Texture, *State) {
+	l.Post(OperationFunc(func(screen.Texture) {
 		l.stopReq = true
 	}))
 	<-l.stopped
@@ -82,10 +83,7 @@ func (mq *messageQueue) pull() Operation {
 	defer mq.mut.Unlock()
 
 	for len(mq.ops) == 0 {
-		if mq.noacs == nil {
-			mq.noacs = make(chan struct{})
-		}
-
+		mq.noacs = make(chan struct{})
 		mq.mut.Unlock()
 		<-mq.noacs
 		mq.mut.Lock()
