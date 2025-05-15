@@ -132,7 +132,11 @@ func buildOps(s *CurState) []painter.Operation {
 
 	if s.BgColorOp != nil {
 		ops = append(ops, s.BgColorOp)
+	} else {
+		s.BgColorOp = painter.GreenBackgroundOp(color.RGBA{0, 255, 0, 255})
+		ops = append(ops, s.BgColorOp)
 	}
+
 	if len(s.BgRectFill) > 0 {
 		// draw last rectangle
 		ops = append(ops, s.BgRectFill[len(s.BgRectFill)-1])
