@@ -14,6 +14,8 @@ import (
 type Parser struct {
 }
 
+var isReset = false
+
 type CurState struct {
 	Figures    []*painter.Figure
 	BgRectFill []*painter.BgRect
@@ -103,6 +105,7 @@ func parseLine(line string, s *CurState) ([]painter.Operation, error) {
 
 	case "reset":
 		*s = *UpdateState()
+		isReset = true
 		return []painter.Operation{painter.Reset()}, nil
 
 	default:
@@ -132,7 +135,12 @@ func buildOps(s *CurState) []painter.Operation {
 
 	if s.BgColorOp != nil {
 		ops = append(ops, s.BgColorOp)
+	} else if isReset {
+		// For reset command bg is black
+		s.BgColorOp = painter.GreenBackgroundOp(color.Black)
+		isReset = false
 	} else {
+		// For move command without figure bg is green
 		s.BgColorOp = painter.GreenBackgroundOp(color.RGBA{0, 255, 0, 255})
 		ops = append(ops, s.BgColorOp)
 	}
