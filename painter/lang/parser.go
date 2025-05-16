@@ -136,10 +136,8 @@ func buildOps(s *CurState) []painter.Operation {
 
 	if s.BgColorOp != nil {
 		ops = append(ops, s.BgColorOp)
-	} else if isReset {
-		s.BgColorOp = painter.GreenBackgroundOp(color.Black)
-		isReset = false
 	} else {
+		// For move command without figure bg is green
 		s.BgColorOp = painter.GreenBackgroundOp(color.RGBA{0, 255, 0, 255})
 		ops = append(ops, s.BgColorOp)
 	}
