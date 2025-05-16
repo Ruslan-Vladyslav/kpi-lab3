@@ -74,28 +74,35 @@ update`
 }
 
 func TestParseMove(t *testing.T) {
-	input := `figure 0.1 0.1
-move 0.1 0.2
-update`
-
 	state := lang.UpdateState()
-	parser := &lang.Parser{}
 
-	_, err := parser.Parse(strings.NewReader(input), state)
+	state.Figures = []*painter.Figure{
+		{X: 100, Y: 100},
+	}
+
+	input := `move 0.1 0.2`
+
+	parser := &lang.Parser{}
+	ops, err := parser.Parse(strings.NewReader(input), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(state.Figures) != 1 {
-		t.Fatalf("expected 1 figure, got %d", len(state.Figures))
+	if len(ops) != 1 {
+		t.Fatalf("expected 1 move operation, got %d", len(ops))
 	}
 
-	expectedX := int((0.1 + 0.1) * 400)
-	expectedY := int((0.1 + 0.2) * 400)
+	ok := ops[0].Do(nil)
+	if !ok {
+		t.Errorf("expected Do to return true")
+	}
 
 	fig := state.Figures[0]
+	expectedX := 100 + int(0.1*400)
+	expectedY := 100 + int(0.2*400)
+
 	if fig.X != expectedX || fig.Y != expectedY {
-		t.Errorf("figure not moved correctly, got (%d,%d), expected (%d,%d)", fig.X, fig.Y, expectedX, expectedY)
+		t.Errorf("expected figure at (%d,%d), got (%d,%d)", expectedX, expectedY, fig.X, fig.Y)
 	}
 }
 

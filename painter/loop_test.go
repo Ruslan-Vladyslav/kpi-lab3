@@ -127,8 +127,8 @@ func TestMove(t *testing.T) {
 	}
 
 	mt := &mockTexture{}
-	moveOp := Move(5, -5, figs)
-	moveOp(mt)
+	moveOp := MoveOp{Mx: 5, My: -5, Figures: figs}
+	moveOp.Do(mt)
 
 	if figs[0].X != 15 || figs[0].Y != 15 {
 		t.Errorf("figure 0 position expected (15,15), got (%d,%d)", figs[0].X, figs[0].Y)

@@ -99,8 +99,7 @@ func parseLine(line string, s *CurState) ([]painter.Operation, error) {
 		}
 		dx, dy := int(vals[0]*400), int(vals[1]*400)
 
-		moveOp := painter.Move(dx, dy, s.Figures)
-		s.MoveOp = append(s.MoveOp, moveOp)
+		moveOp := painter.MoveOp{Mx: dx, My: dy, Figures: s.Figures}
 
 		return []painter.Operation{moveOp}, nil
 

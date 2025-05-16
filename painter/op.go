@@ -101,13 +101,17 @@ func (op *Figure) Figure() OperationFunc {
 	}
 }
 
-func Move(mx, my int, figures []*Figure) OperationFunc {
-	return func(t screen.Texture) {
-		for _, op := range figures {
-			op.X += mx
-			op.Y += my
-		}
+type MoveOp struct {
+	Mx, My  int
+	Figures []*Figure
+}
+
+func (op MoveOp) Do(t screen.Texture) bool {
+	for _, f := range op.Figures {
+		f.X += op.Mx
+		f.Y += op.My
 	}
+	return true
 }
 
 type ResetOp struct{}
